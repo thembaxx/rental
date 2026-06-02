@@ -11,8 +11,8 @@ export const dynamic = "force-dynamic"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "RentSpace - Find Your Perfect Place",
-  description: "Discover apartments, houses, rooms, and more for rent. No fees, direct contact with landlords.",
+  title: "RentSpace — Modern rentals with frictionless search",
+  description: "Browse rentals with a clean, mobile-first interface. Search, compare, and message hosts instantly.",
 }
 
 export default async function RootLayout({
@@ -24,7 +24,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.className} bg-background text-foreground antialiased`}>
         <SessionWrapper session={session}>
           <div className="min-h-screen flex flex-col">
             <Navbar user={session?.user} />
