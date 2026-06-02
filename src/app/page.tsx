@@ -6,34 +6,47 @@ import Link from "next/link"
 import { MapPin, Shield, MessageCircle } from "lucide-react"
 
 async function getFeaturedListings() {
-  return prisma.listing.findMany({
-    where: {
-      status: "ACTIVE",
-      featured: true,
-      expiresAt: { gt: new Date() },
-    },
-    include: {
-      lister: { select: { id: true, name: true, image: true } },
-      _count: { select: { reviews: true, favorites: true } },
-    },
-    take: 8,
-    orderBy: { refreshedAt: "desc" },
-  })
+  try {
+    return await prisma.listing.findMany({
+      where: {
+        status: "ACTIVE",
+        featured: true,
+        expiresAt: { gt: new Date() },
+      },
+      include: {
+        lister: { select: { id: true, name: true, image: true } },
+        _count: { select: { reviews: true, favorites: true } },
+      },
+      take: 8,
+      orderBy: { refreshedAt: "desc" },
+    })
+  } catch (err) {
+    // Avoid crashing the entire page on DB errors (e.g., timeouts). Return an empty list.
+    // eslint-disable-next-line no-console
+    console.error('getFeaturedListings error', err)
+    return []
+  }
 }
 
 async function getRecentListings() {
-  return prisma.listing.findMany({
-    where: {
-      status: "ACTIVE",
-      expiresAt: { gt: new Date() },
-    },
-    include: {
-      lister: { select: { id: true, name: true, image: true } },
-      _count: { select: { reviews: true, favorites: true } },
-    },
-    take: 8,
-    orderBy: { createdAt: "desc" },
-  })
+  try {
+    return await prisma.listing.findMany({
+      where: {
+        status: "ACTIVE",
+        expiresAt: { gt: new Date() },
+      },
+      include: {
+        lister: { select: { id: true, name: true, image: true } },
+        _count: { select: { reviews: true, favorites: true } },
+      },
+      take: 8,
+      orderBy: { createdAt: "desc" },
+    })
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('getRecentListings error', err)
+    return []
+  }
 }
 
 export default async function HomePage() {
