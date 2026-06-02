@@ -1,36 +1,44 @@
-import { auth } from "@/lib/auth"
-import { NextRequest, NextResponse } from "next/server"
+import { withAuth } from "next-auth/middleware"
+import { NextResponse } from "next/server"
 
-export default auth(
-  (req: NextRequest & { auth?: { user?: { isAdmin?: boolean; isLister?: boolean } } }) => {
-  const { nextUrl } = req
-  const isLoggedIn = !!req.auth
-  const isAdmin = req.auth?.user?.isAdmin
-  const isLister = req.auth?.user?.isLister
+export default withAuth(
+  (req) => {
+    const { nextUrl } = req
+    const pathname = nextUrl.pathname
+    const token = (req as any).nextauth?.token
+    const isLoggedIn = !!token
+    const isAdmin = token?.isAdmin
+    const isLister = token?.isLister
 
-  const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth")
-  const isPublicRoute = ["/", "/search", "/listing"].some((route) =>
-    nextUrl.pathname.startsWith(route)
-  )
-  const isAdminRoute = nextUrl.pathname.startsWith("/admin")
-  const isListerRoute = nextUrl.pathname.startsWith("/my-listings")
+    const isApiAuthRoute = pathname.startsWith("/api/auth")
+    const isPublicRoute = ["/", "/search", "/listing"].some((route) =>
+      pathname.startsWith(route)
+    )
+    const isAdminRoute = pathname.startsWith("/admin")
+    const isListerRoute = pathname.startsWith("/my-listings")
 
-  if (isApiAuthRoute) return NextResponse.next()
+    if (isApiAuthRoute) return NextResponse.next()
 
-  if (isAdminRoute && !isAdmin) {
-    return NextResponse.redirect(new URL("/", nextUrl))
+    if (isAdminRoute && !isAdmin) {
+      return NextResponse.redirect(new URL("/", req.url))
+    }
+
+    if (isListerRoute && !isLister && !isAdmin) {
+      return NextResponse.redirect(new URL("/", req.url))
+    }
+
+    if (!isLoggedIn && !isPublicRoute) {
+      return NextResponse.redirect(new URL("/", req.url))
+    }
+
+    return NextResponse.next()
+  },
+  {
+    callbacks: {
+      authorized: () => true,
+    },
   }
-
-  if (isListerRoute && !isLister && !isAdmin) {
-    return NextResponse.redirect(new URL("/", nextUrl))
-  }
-
-  if (!isLoggedIn && !isPublicRoute) {
-    return NextResponse.redirect(new URL("/", nextUrl))
-  }
-
-  return NextResponse.next()
-})
+)
 
 export const config = {
   matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
