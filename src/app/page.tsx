@@ -20,10 +20,10 @@ async function getFeaturedListings() {
       take: 8,
       orderBy: { refreshedAt: "desc" },
     })
-  } catch (err) {
-    // Avoid crashing the entire page on DB errors (e.g., timeouts). Return an empty list.
+  } catch (err: any) {
+    // Avoid crashing the entire page on DB errors. Fall back to empty results.
     // eslint-disable-next-line no-console
-    console.error('getFeaturedListings error', err)
+    console.warn('Featured listings unavailable:', err?.code ?? err?.message ?? 'Unknown error')
     return []
   }
 }
@@ -42,9 +42,9 @@ async function getRecentListings() {
       take: 8,
       orderBy: { createdAt: "desc" },
     })
-  } catch (err) {
+  } catch (err: any) {
     // eslint-disable-next-line no-console
-    console.error('getRecentListings error', err)
+    console.warn('Recent listings unavailable:', err?.code ?? err?.message ?? 'Unknown error')
     return []
   }
 }
@@ -69,9 +69,15 @@ export default async function HomePage() {
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featured.map((listing: any) => (
-            <ListingCard key={listing.id} listing={listing} />
-          ))}
+          {featured.length > 0 ? (
+            featured.map((listing: any) => (
+              <ListingCard key={listing.id} listing={listing} />
+            ))
+          ) : (
+            <div className="col-span-full rounded-2xl border border-dashed border-muted p-16 text-center text-muted-foreground">
+              No featured listings are available at the moment.
+            </div>
+          )}
         </div>
       </section>
 
@@ -84,9 +90,15 @@ export default async function HomePage() {
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {recent.map((listing: any) => (
-            <ListingCard key={listing.id} listing={listing} />
-          ))}
+          {recent.length > 0 ? (
+            recent.map((listing: any) => (
+              <ListingCard key={listing.id} listing={listing} />
+            ))
+          ) : (
+            <div className="col-span-full rounded-2xl border border-dashed border-muted p-16 text-center text-muted-foreground">
+              No recent listings are available right now.
+            </div>
+          )}
         </div>
       </section>
 

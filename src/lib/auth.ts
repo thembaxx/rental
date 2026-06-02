@@ -13,12 +13,22 @@ async function loadNextAuth() {
     const { default: Google } = await import("next-auth/providers/google")
     const { prisma } = await import("./prisma")
 
+    const googleClientId = process.env.AUTH_GOOGLE_ID
+    const googleClientSecret = process.env.AUTH_GOOGLE_SECRET
+    const authSecret = process.env.AUTH_SECRET
+
+    if (!googleClientId || !googleClientSecret) {
+      throw new Error(
+        "NextAuth Google provider is not configured. Set AUTH_GOOGLE_ID and AUTH_GOOGLE_SECRET."
+      )
+    }
+
     nextAuthClient = NextAuth({
       adapter: PrismaAdapter(prisma),
       providers: [
         Google({
-          clientId: process.env.AUTH_GOOGLE_ID!,
-          clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+          clientId: googleClientId,
+          clientSecret: googleClientSecret,
         }),
       ],
       callbacks: {
@@ -33,9 +43,12 @@ async function loadNextAuth() {
       },
       pages: {
         signIn: "/",
+        error: "/auth/error",
       },
+      secret: authSecret || undefined,
     })
-  } catch {
+  } catch (error) {
+    console.error("NextAuth initialization failed:", error)
     nextAuthClient = null
   }
 
