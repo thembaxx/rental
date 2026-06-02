@@ -5,7 +5,14 @@ import Link from "next/link"
 import { formatDate } from "@/lib/utils"
 import { MessageSquare } from "lucide-react"
 
-async function getConversations(userId: string) {
+type ConversationWithListing = {
+  id: string
+  participants: { user: { id: string; name: string; image: string | null } }[]
+  messages: { createdAt: Date; sender: { id: string; name: string }; content: string }[]
+  listing: { id: string; title: string; images: string[] } | null
+}
+
+async function getConversations(userId: string): Promise<ConversationWithListing[]> {
   return prisma.conversation.findMany({
     where: {
       participants: {

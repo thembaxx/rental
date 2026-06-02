@@ -23,7 +23,7 @@ const PROPERTY_TYPES = [
   { value: "PARKING", label: "Parking" },
   { value: "STORAGE", label: "Storage" },
   { value: "OTHER", label: "Other" },
-]
+] as const
 const AMENITIES_LIST = [
   "WIFI", "PARKING", "LAUNDRY", "AC", "HEATING", "KITCHEN",
   "TV", "POOL", "GYM", "ELEVATOR", "BALCONY", "GARDEN",
@@ -263,7 +263,7 @@ export default function NewListingPage() {
                 <Label>Property Type</Label>
                 <select
                   value={formData.propertyType}
-                  onChange={(e) => updateField("propertyType", e.target.value)}
+                  onChange={(e) => updateField("propertyType", e.target.value as ListingFormData["propertyType"])}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
                   {PROPERTY_TYPES.map((t) => (
@@ -285,7 +285,7 @@ export default function NewListingPage() {
             <div>
               <Label>Price Type</Label>
               <div className="flex gap-2">
-                {["MONTHLY", "NIGHTLY", "TOTAL"].map((type) => (
+                {(["MONTHLY", "NIGHTLY", "TOTAL"] as const).map((type) => (
                   <Button
                     key={type}
                     type="button"

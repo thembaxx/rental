@@ -2,9 +2,10 @@ import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { ListingCard } from "@/components/listings/ListingCard"
+import { ListingWithLister } from "@/types"
 import { Heart } from "lucide-react"
 
-async function getFavorites(userId: string) {
+async function getFavorites(userId: string): Promise<ListingWithLister[]> {
   const favorites = await prisma.favorite.findMany({
     where: { userId },
     include: {
@@ -17,7 +18,7 @@ async function getFavorites(userId: string) {
     },
     orderBy: { createdAt: "desc" },
   })
-  return favorites.map((favorite) => favorite.listing)
+  return favorites.map((favorite: { listing: ListingWithLister }) => favorite.listing)
 }
 
 export default async function FavoritesPage() {
