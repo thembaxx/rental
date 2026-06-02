@@ -77,9 +77,12 @@ select {
 }
 
 .mapboxgl-popup-content {
-  @apply p-0 rounded-[1.5rem] overflow-hidden shadow-lg;
+  padding: 0;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.06);
 }
 
 .mapboxgl-popup-close-button {
-  @apply hidden;
+  display: none;
 }

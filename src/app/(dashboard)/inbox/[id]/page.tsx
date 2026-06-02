@@ -133,23 +133,23 @@ export default function ChatThreadPage() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] max-w-4xl mx-auto">
+    <div className="flex min-h-[calc(100vh-64px)] flex-col rounded-[2rem] border border-slate-200/70 bg-white/90 shadow-sm shadow-slate-200/20 md:mx-auto md:max-w-4xl lg:max-w-5xl">
       {/* Header */}
-      <div className="border-b p-4 flex items-center gap-3 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
-        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-lg font-medium">
-          {otherParticipant?.name?.[0] || "?"}
-        </div>
-        <div className="flex-1 min-w-0">
-          <h2 className="font-semibold truncate">{otherParticipant?.name || "Unknown"}</h2>
-          {conversation.listing && (
-            <p className="text-xs text-muted-foreground truncate">
-              Re: {conversation.listing.title}
-            </p>
-          )}
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-xs text-muted-foreground">Online</span>
+      <div className="sticky top-0 z-20 border-b border-slate-200/70 bg-white/95 px-4 py-4 backdrop-blur-md sm:px-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-sky-50 text-lg font-semibold text-sky-600">
+            {otherParticipant?.name?.[0] || "?"}
+          </div>
+          <div className="min-w-0 flex-1">
+            <h2 className="truncate text-xl font-semibold text-slate-900">{otherParticipant?.name || "Unknown"}</h2>
+            {conversation.listing && (
+              <p className="text-sm text-slate-600 truncate">Re: {conversation.listing.title}</p>
+            )}
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            Online
+          </div>
         </div>
       </div>
 
@@ -157,12 +157,12 @@ export default function ChatThreadPage() {
       <div 
         ref={messagesContainerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto p-4 space-y-4"
+        className="flex-1 overflow-y-auto bg-slate-50 p-4 sm:p-6 space-y-4"
       >
         {conversation.messages.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            <p>No messages yet.</p>
-            <p className="text-sm">Send a message to start the conversation.</p>
+          <div className="rounded-[2rem] border border-slate-200/70 bg-white/90 p-10 text-center text-slate-600 shadow-sm">
+            <p className="text-lg font-semibold text-slate-900">No messages yet</p>
+            <p className="mt-2 text-sm">Send a message to start the conversation.</p>
           </div>
         ) : (
           conversation.messages.map((msg, i) => {
@@ -174,34 +174,32 @@ export default function ChatThreadPage() {
             return (
               <div key={msg.id}>
                 {showDate && (
-                  <div className="flex justify-center my-4">
-                    <span className="text-xs text-muted-foreground bg-muted px-3 py-1 rounded-full">
+                  <div className="flex justify-center">
+                    <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-slate-500 shadow-sm">
                       {formatDate(msg.createdAt)}
                     </span>
                   </div>
                 )}
                 <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[75%] sm:max-w-[65%] ${isMe ? "items-end" : "items-start"}`}>
+                  <div className={`max-w-[80%] sm:max-w-[65%] ${isMe ? "items-end" : "items-start"}`}>
                     {!isMe && (
-                      <p className="text-xs text-muted-foreground mb-1 ml-1">
+                      <p className="mb-1 ml-1 text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
                         {msg.sender.name || "Unknown"}
                       </p>
                     )}
                     <div
-                      className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                      className={`rounded-3xl px-5 py-3 text-sm leading-relaxed shadow-sm ${
                         isMe
-                          ? "bg-primary text-primary-foreground rounded-br-sm"
-                          : "bg-muted rounded-bl-sm"
+                          ? "bg-sky-600 text-white rounded-br-[0.75rem]"
+                          : "bg-white text-slate-900 rounded-bl-[0.75rem]"
                       }`}
                     >
                       {msg.content}
                     </div>
-                    <p className="text-[10px] text-muted-foreground mt-1 px-1">
+                    <p className="mt-2 text-[11px] text-slate-500 px-1">
                       {new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       {isMe && (
-                        <span className="ml-1">
-                          {msg.readAt ? "· Read" : "· Sent"}
-                        </span>
+                        <span className="ml-1">{msg.readAt ? "· Read" : "· Sent"}</span>
                       )}
                     </p>
                   </div>
@@ -214,21 +212,21 @@ export default function ChatThreadPage() {
       </div>
 
       {/* Input */}
-      <div className="border-t p-4 bg-background">
-        <form onSubmit={handleSend} className="flex gap-2">
+      <div className="border-t border-slate-200/70 bg-white p-4 sm:p-5">
+        <form onSubmit={handleSend} className="flex gap-3">
           <Input
             ref={inputRef}
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type a message..."
-            className="flex-1"
+            className="flex-1 rounded-3xl border-slate-200 bg-slate-50"
             disabled={sending}
           />
           <Button 
             type="submit" 
             size="icon" 
             disabled={sending || !newMessage.trim()}
-            className="shrink-0"
+            className="shrink-0 rounded-full"
           >
             {sending ? (
               <Loader2 className="w-4 h-4 animate-spin" />

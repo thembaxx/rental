@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createListing } from "@/actions/listings"
@@ -30,6 +31,28 @@ const AMENITIES_LIST = [
   "WATER_INCLUDED", "ELECTRICITY_INCLUDED",
 ]
 
+type ListingFormData = {
+  title: string
+  description: string
+  price: number
+  priceType: "MONTHLY" | "NIGHTLY" | "TOTAL"
+  propertyType: "APARTMENT" | "HOUSE" | "ROOM" | "STUDIO" | "LOFT" | "PARKING" | "STORAGE" | "OTHER"
+  bedrooms: number
+  bathrooms: number
+  areaSqm?: number
+  furnished: boolean
+  petFriendly: boolean
+  maxGuests?: number
+  address: string
+  city: string
+  state: string
+  country: string
+  lat: number
+  lng: number
+  amenities: string[]
+  images: string[]
+}
+
 export default function NewListingPage() {
   const [step, setStep] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -58,7 +81,7 @@ export default function NewListingPage() {
     images: [] as string[],
   })
 
-  const updateField = (field: string, value: any) => {
+  const updateField = <K extends keyof ListingFormData>(field: K, value: ListingFormData[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
     setErrors((prev) => {
       const next = { ...prev }
@@ -403,7 +426,13 @@ export default function NewListingPage() {
             <div className="border rounded-xl overflow-hidden">
               {formData.images[0] && (
                 <div className="aspect-video bg-muted relative">
-                  <img src={formData.images[0]} alt="Preview" className="w-full h-full object-cover" />
+                  <Image
+                    src={formData.images[0]}
+                    alt="Preview"
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
                 </div>
               )}
               <div className="p-4">
@@ -430,56 +459,63 @@ export default function NewListingPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Create New Listing</h1>
+    <div className="max-w-3xl mx-auto space-y-8">
+      <section className="rounded-[2rem] border border-slate-200/70 bg-white/95 p-6 shadow-sm">
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.32em] text-sky-600">New Listing</p>
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">Create your next property listing</h1>
+            <p className="mt-2 text-sm text-slate-600">A guided multi-step form to help you publish a polished rental in minutes.</p>
+          </div>
 
-      {/* Progress */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-2">
-          {STEPS.map((s, i) => (
-            <div key={s} className={`text-xs font-medium ${i <= step ? "text-primary" : "text-muted-foreground"}`}>
-              {s}
+          <div className="rounded-3xl border border-slate-200/70 bg-slate-50 p-4">
+            <div className="flex items-center justify-between gap-3 text-sm font-medium text-slate-700">
+              {STEPS.map((s, i) => (
+                <span key={s} className={i <= step ? "text-sky-600" : "text-slate-400"}>
+                  {s}
+                </span>
+              ))}
             </div>
-          ))}
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-white shadow-inner">
+              <div
+                className="h-full rounded-full bg-sky-600 transition-all duration-300"
+                style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
+              />
+            </div>
+          </div>
         </div>
-        <div className="h-2 bg-muted rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary transition-all duration-300"
-            style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
-          />
+      </section>
+
+      <section className="rounded-[2rem] border border-slate-200/70 bg-white/95 p-6 shadow-sm">
+        <div className="min-h-[400px] space-y-6">{renderStep()}</div>
+
+        <div className="mt-8 flex flex-col gap-3 border-t border-slate-200/70 pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <Button
+            variant="outline"
+            onClick={handleBack}
+            disabled={step === 0}
+            className="gap-2"
+          >
+            <ChevronLeft className="w-4 h-4" /> Back
+          </Button>
+
+          {step < STEPS.length - 1 ? (
+            <Button onClick={handleNext} className="gap-2">
+              Next <ChevronRight className="w-4 h-4" />
+            </Button>
+          ) : (
+            <Button onClick={handleSubmit} disabled={loading} className="gap-2">
+              {loading ? (
+                <>Publishing...</>
+              ) : (
+                <>
+                  <Check className="w-4 h-4" /> Publish Listing
+                </>
+              )}
+            </Button>
+          )}
         </div>
-      </div>
-
-      {/* Step Content */}
-      <div className="min-h-[400px]">{renderStep()}</div>
-
-      {/* Navigation */}
-      <div className="flex items-center justify-between mt-8 pt-6 border-t">
-        <Button
-          variant="outline"
-          onClick={handleBack}
-          disabled={step === 0}
-          className="gap-2"
-        >
-          <ChevronLeft className="w-4 h-4" /> Back
-        </Button>
-
-        {step < STEPS.length - 1 ? (
-          <Button onClick={handleNext} className="gap-2">
-            Next <ChevronRight className="w-4 h-4" />
-          </Button>
-        ) : (
-          <Button onClick={handleSubmit} disabled={loading} className="gap-2">
-            {loading ? (
-              <>Publishing...</>
-            ) : (
-              <>
-                <Check className="w-4 h-4" /> Publish Listing
-              </>
-            )}
-          </Button>
-        )}
-      </div>
+      </section>
     </div>
   )
 }
